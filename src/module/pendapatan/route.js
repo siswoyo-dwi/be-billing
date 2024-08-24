@@ -1,0 +1,13 @@
+const Controller = require('./controller');
+const router = require('express').Router();
+const authentification= require('../../middleware/authentification')
+const upload=require('../../helper/upload')
+const captcha= require('../../middleware/captcha')
+
+router.post('/register',upload, Controller.register);
+router.post('/register_mobile',upload, Controller.register);
+router.post('/update', Controller.update);
+router.post('/list', Controller.list);
+router.post('/delete', Controller.delete);
+router.get('/details_by_id/:pendapatan_id', Controller.details_by_pendapatan_id);
+module.exports = router
