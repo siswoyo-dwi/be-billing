@@ -1,6 +1,6 @@
 const {sq} = require("../../config/connection");
 const { v4: uuid_v4 } = require("uuid");
-const prodi = require("./model");
+const ps = require("./model");
 const { QueryTypes,Op } = require('sequelize');
 const s = {type:QueryTypes.SELECT};
 
@@ -9,12 +9,12 @@ const s = {type:QueryTypes.SELECT};
 class Controller{
 
     static async register(req,res){
-        const{nama_prodi,fakultas_id}=req.body
+        const{nama_ps,ps_id}=req.body
 
         try {
-                const [row, created] = await prodi.findOrCreate({
-                where: {nama_prodi},
-                defaults: {id:uuid_v4(),nama_prodi,fakultas_id},
+                const [row, created] = await ps.findOrCreate({
+                where: {nama_ps},
+                defaults: {ps_id:uuid_v4(),nama_ps,},
               });
             
              if(created){
@@ -30,15 +30,29 @@ class Controller{
     }
 
     static  async update(req,res){
-        const{id,nama_prodi,fakultas_id}= req.body
+        const{ps_id,nama_ps,}= req.body
+        let conditions = [];
+        let replacements = {};
+        if (ps_id) {
+            conditions.push('p.ps_id != :ps_id');
+            replacements.ps_id = ps_id;
+        }
+        if (nama_ps) {
+            conditions.push('p.nama_ps = :nama_ps');
+            replacements.nama_ps = nama_ps;
+        }
+        const whereClause = conditions.length > 0 ? `AND ${conditions.join(' AND ')}` : '';
+
         try {
-            let cek_uniq= await sq.query(` select * from prodi s where s."deletedAt" isnull and s.nama_prodi = '${nama_prodi}' and s.id !='${id}' `,s)
-            if(cek_uniq.length){
+            let cek_uniq= await sq.query(` select * from ps p where p."deletedAt" isnull ${whereClause} `,{replacements: { ...replacements },s})
+            console.log(cek_uniq);
+            
+            if(cek_uniq[0].length){
                 res.status(200).json({status:201,message:"data sudah ada"});
             }
             else{
-               let asd =  await prodi.update({nama_prodi,fakultas_id},{where:{
-                    id
+               let asd =  await ps.update({nama_ps,},{where:{
+                    ps_id
                 }})
                 if(asd>0){
                     res.status(200).json({status:200,message:"sukses"});
@@ -57,17 +71,21 @@ class Controller{
     }
     
     static async list(req,res){
-        const{id,fakultas_id}=req.body
-        let isi=``
-        if(id){
-            isi += ` and p.id = '${id}' `
+        const{ps_id,nama_ps}=req.body
+        let conditions = [];
+        let replacements = {};
+        if (ps_id) {
+            conditions.push('p.ps_id = :ps_id');
+            replacements.ps_id = ps_id;
         }
-        if(fakultas_id){
-            isi +=` and p.fakultas_id='${fakultas_id}' `
+        if (nama_ps) {
+            conditions.push('p.nama_ps = :nama_ps');
+            replacements.nama_ps = nama_ps;
         }
+        const whereClause = conditions.length > 0 ? `AND ${conditions.join(' AND ')}` : '';
 
         try {
-            let data = await sq.query(`select p.*,f.nama_fakultas from prodi p join fakultas f on p.fakultas_id = f.id where p."deletedAt" isnull ${isi} `,s)
+            let data = await sq.query(`select p.* from ps p  where p."deletedAt" isnull ${whereClause} `,{replacements: { ...replacements },s})
             res.status(200).json({status:200,message:"sukses",data});
         } catch (error) {
             console.log(error);
@@ -76,9 +94,9 @@ class Controller{
     }
 
     static async delete(req,res){
-        const{id}=req.body
+        const{ps_id}=req.body
         try {
-            await prodi.destroy({where:{id}})
+            await ps.destroy({where:{ps_id}})
             res.status(200).json({status:200,message:"sukses"});
         } catch (error) {
             console.log(error);

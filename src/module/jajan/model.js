@@ -2,7 +2,7 @@ const { DataTypes } = require('sequelize');
 const {sq} =  require('../../config/connection')
 
 const jajan = sq.define('jajan',{
-    id:{
+    jajan_id:{
         type: DataTypes.STRING,
         primaryKey: true
     },

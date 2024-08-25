@@ -15,9 +15,8 @@ const pengeluaran = sq.define('pengeluaran',{
     },
 },
 {
-paranoid:true,
-createdAt: false,
-updatedAt:false
+    paranoid:true,
+    freezeTableName:true
 });
 
 

@@ -15,8 +15,6 @@ const paket = sq.define('paket',{
 },
 {
 paranoid:true,
-createdAt: false,
-updatedAt:false,
 freezeTableName:true
 });
 

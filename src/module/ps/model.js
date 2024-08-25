@@ -1,9 +1,7 @@
 const { DataTypes } = require('sequelize');
 const {sq} =  require('../../config/connection')
-// const fakultas=require('../fakultas/model')
-
 const ps = sq.define('ps',{
-    id:{
+    ps_id:{
         type: DataTypes.STRING,
         primaryKey: true
     },
@@ -18,9 +16,6 @@ createdAt: false,
 updatedAt:false,
 freezeTableName:true
 });
-
-// ps.belongsTo(fakultas,{foreignKey:"fakultas_id"})
-// fakultas.hasMany(ps,{foreignKey:"fakultas_id"})
 
 // users.sync({ alter: true })
 module.exports = ps
