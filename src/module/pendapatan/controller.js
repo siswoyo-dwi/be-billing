@@ -61,7 +61,7 @@ class Controller{
     }
     
     static async list(req,res){
-        const{pendapatan_id,ps_id,paket_id,user_id,date,bulan,tahun,jumlah}=req.body
+        const{pendapatan_id,ps_id,paket_id,user_id,date,bulan,tahun,jumlah,halaman}=req.body
         let offset = (+halaman -1) * jumlah;
         let conditions = [];
         let replacements = {};

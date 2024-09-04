@@ -9,6 +9,9 @@ const paket = sq.define('paket',{
     nama_paket:{
         type:DataTypes.STRING
     },
+    time:{
+        type:DataTypes.INTEGER
+    },
     harga_paket:{
         type:DataTypes.INTEGER
     }

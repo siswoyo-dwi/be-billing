@@ -57,14 +57,18 @@ class Controller{
     }
     
     static async list(req,res){
-        const{id}=req.body
-        let isi=``
-        if(id){
-            isi += ` and f.id = '${id}' `
+        const{pengeluaran_id,halaman,jumlah}=req.body
+        let offset = (+halaman -1) * jumlah;
+        let conditions = [];
+        let replacements = {};
+        if(pengeluaran_id){
+            conditions.push('p.pengeluaran_id = :pengeluaran_id');
+            replacements.pengeluaran_id = pengeluaran_id;
         }
+        const whereClause = conditions.length > 0 ? `AND ${conditions.join(' AND ')}` : '';
 
         try {
-            let data = await sq.query(`select * from pengeluaran f where f."deletedAt" isnull ${isi} `,s)
+            let data = await sq.query(`select * from pengeluaran f where p."deletedAt" isnull l ${whereClause} order by p."createdAt" desc LIMIT :jumlah OFFSET :offset `,{replacements: { ...replacements, jumlah, offset },s})
             res.status(200).json({status:200,message:"sukses",data});
         } catch (error) {
             console.log(error);
@@ -73,9 +77,9 @@ class Controller{
     }
 
     static async delete(req,res){
-        const{id}=req.body
+        const{pengeluaran_id}=req.body
         try {
-            await pengeluaran.destroy({where:{id}})
+            await pengeluaran.destroy({where:{pengeluaran_id}})
             res.status(200).json({status:200,message:"sukses"});
         } catch (error) {
             console.log(error);
