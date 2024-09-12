@@ -9,12 +9,12 @@ const s = {type:QueryTypes.SELECT};
 class Controller{
 
     static async register(req,res){
-        const{nama_paket,harga_paket,ps_id}=req.body
+        const{nama_paket,harga_paket,time,ps_id}=req.body
 
         try {
                 const [row, created] = await paket.findOrCreate({
                 where: {nama_paket},
-                defaults: {id:uuid_v4(),nama_paket,harga_paket,ps_id},
+                defaults: {paket_id:uuid_v4(),nama_paket,harga_paket,time,ps_id},
               });
             
              if(created){
@@ -30,7 +30,7 @@ class Controller{
     }
 
     static  async update(req,res){
-        const{paket_id,nama_paket,harga_paket,ps_id}= req.body
+        const{paket_id,nama_paket,harga_paket,time,ps_id}= req.body
         let conditions = [];
         let replacements = {};
         if (paket_id) {
@@ -49,7 +49,7 @@ class Controller{
                 res.status(200).json({status:201,message:"data sudah ada"});
             }
             else{
-               let asd =  await paket.update({nama_paket,harga_paket,ps_id},{where:{
+               let asd =  await paket.update({nama_paket,harga_paket,time,ps_id},{where:{
                     paket_id
                 }})
                 if(asd>0){
