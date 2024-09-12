@@ -68,7 +68,7 @@ class Controller{
         const whereClause = conditions.length > 0 ? `AND ${conditions.join(' AND ')}` : '';
 
         try {
-            let data = await sq.query(`select * from pengeluaran f where p."deletedAt" isnull l ${whereClause} order by p."createdAt" desc LIMIT :jumlah OFFSET :offset `,{replacements: { ...replacements, jumlah, offset },s})
+            let data = await sq.query(`select * from pengeluaran f where p."deletedAt" isnull l ${whereClause} order by p."createdAt" desc  `,{replacements: { ...replacements },s})
             res.status(200).json({status:200,message:"sukses",data});
         } catch (error) {
             console.log(error);

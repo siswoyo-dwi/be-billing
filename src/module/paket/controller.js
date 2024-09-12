@@ -9,12 +9,12 @@ const s = {type:QueryTypes.SELECT};
 class Controller{
 
     static async register(req,res){
-        const{nama_paket,harga_paket}=req.body
+        const{nama_paket,harga_paket,ps_id}=req.body
 
         try {
                 const [row, created] = await paket.findOrCreate({
                 where: {nama_paket},
-                defaults: {id:uuid_v4(),nama_paket,harga_paket},
+                defaults: {id:uuid_v4(),nama_paket,harga_paket,ps_id},
               });
             
              if(created){
@@ -30,7 +30,7 @@ class Controller{
     }
 
     static  async update(req,res){
-        const{paket_id,nama_paket,harga_paket}= req.body
+        const{paket_id,nama_paket,harga_paket,ps_id}= req.body
         let conditions = [];
         let replacements = {};
         if (paket_id) {
@@ -49,7 +49,7 @@ class Controller{
                 res.status(200).json({status:201,message:"data sudah ada"});
             }
             else{
-               let asd =  await paket.update({nama_paket,harga_paket},{where:{
+               let asd =  await paket.update({nama_paket,harga_paket,ps_id},{where:{
                     paket_id
                 }})
                 if(asd>0){
@@ -76,7 +76,7 @@ class Controller{
         }
 
         try {
-            let data = await sq.query(`select * from paket f where f."deletedAt" isnull ${isi} `,s)
+            let data = await sq.query(`select * from paket f left join  ps as p on p.ps_id  = f.ps_id  where f."deletedAt" isnull ${isi} `,s)
             res.status(200).json({status:200,message:"sukses",data});
         } catch (error) {
             console.log(error);

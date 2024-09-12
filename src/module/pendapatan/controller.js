@@ -100,7 +100,7 @@ class Controller{
             left join ps p2 on p2.ps_id = p.ps_id 
             left join paket p3 on p3.paket_id = p.paket_id 
             left join user u on u.user_id = p.user_id 
-            where p."deletedAt" isnull ${whereClause} order by p."createdAt" desc LIMIT :jumlah OFFSET :offset `,{replacements: { ...replacements, jumlah, offset },s})
+            where p."deletedAt" isnull ${whereClause} order by p."createdAt" desc LIMIT  `,{replacements: { ...replacements  },s})
             let jml = await sq.query(` select count(*) from pendapatan p where p."deletedAt" isnull ${whereClause} `,{replacements: { ...replacements },s})
             res.status(200).json({status:200,message:"sukses",data,count:jml[0].count,jumlah,halaman});  
 

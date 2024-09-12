@@ -72,7 +72,7 @@ class Controller{
     }
     
     static async list(req,res){
-        const{jajan_id,jenis_jajan,jumlah,halaman}=req.body
+        const{jajan_id,nama_jajan,jenis_jajan,jumlah,halaman}=req.body
         let offset = (+halaman -1) * jumlah;
         let conditions = [];
         let replacements = {};
@@ -91,7 +91,7 @@ class Controller{
         const whereClause = conditions.length > 0 ? `AND ${conditions.join(' AND ')}` : '';
 
         try {
-            let data = await sq.query(`select * from jajan p where p."deletedAt" isnull ${whereClause}  order by p."createdAt" desc LIMIT :jumlah OFFSET :offset `,{replacements: { ...replacements , jumlah, offset },s})
+            let data = await sq.query(`select * from jajan p where p."deletedAt" isnull ${whereClause}  order by p."createdAt" desc `,{replacements: { ...replacements   },s})
             res.status(200).json({status:200,message:"sukses",data});
         } catch (error) {
             console.log(error);

@@ -12,8 +12,8 @@ const ps = sq.define('ps',{
 },
 {
 paranoid:true,
-createdAt: false,
-updatedAt:false,
+createdAt: true,
+updatedAt:true,
 freezeTableName:true
 });
 
