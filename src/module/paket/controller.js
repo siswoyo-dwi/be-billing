@@ -38,7 +38,7 @@ class Controller{
             replacements.paket_id = paket_id;
         }
         if (nama_paket) {
-            conditions.push('p.nama_paket = :nama_paket');
+            conditions.push('s.nama_paket = :nama_paket');
             replacements.nama_paket = nama_paket;
         }
         const whereClause = conditions.length > 0 ? `AND ${conditions.join(' AND ')}` : '';

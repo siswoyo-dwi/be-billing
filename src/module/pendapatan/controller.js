@@ -12,12 +12,11 @@ moment.locale('id');
 
 
 class Controller{
-
     static async register(req,res){
         console.log(req.body,"ini body");
-        const{ps_id,paket_id,user_id,pendapatan}=req.body
+        const{unit_id,paket_id,status,mulai,user_id,harga_paket}=req.body
         try {
-            let data = await pendapatan.create({pendapatan_id:uuid_v4(),ps_id,paket_id,user_id,pendapatan})
+            let data = await pendapatan.create({pendapatan_id:uuid_v4(),status,mulai,unit_id,paket_id,user_id,harga_paket})
             res.status(200).json({status:200,message:"sukses",data});
 
         } catch (error) {
@@ -40,10 +39,10 @@ class Controller{
     }
 
     static  async update(req,res){
-        const{pendapatan_id,ps_id,paket_id,user_id,pendapatan}=req.body
+        const{pendapatan_id,unit_id,paket_id,status,user_id,pendapatan}=req.body
         try {
         
-               let asd =  await pendapatan.update({ps_id,paket_id,user_id,pendapatan},{where:{
+               let asd =  await pendapatan.update({unit_id,paket_id,status,user_id,pendapatan},{where:{
                     pendapatan_id
                 }})
                 if(asd>0){
@@ -61,7 +60,7 @@ class Controller{
     }
     
     static async list(req,res){
-        const{pendapatan_id,ps_id,paket_id,user_id,date,bulan,tahun,jumlah,halaman}=req.body
+        const{pendapatan_id,unit_id,paket_id,status,user_id,date,bulan,tahun,jumlah,halaman}=req.body
         let offset = (+halaman -1) * jumlah;
         let conditions = [];
         let replacements = {};
@@ -69,9 +68,13 @@ class Controller{
             conditions.push('p.pendapatan_id = :pendapatan_id');
             replacements.pendapatan_id = pendapatan_id;
         }
-        if (ps_id) {
-            conditions.push('p.ps_id = :ps_id');
-            replacements.ps_id = ps_id;
+        if (unit_id) {
+            conditions.push('p.unit_id = :unit_id');
+            replacements.unit_id = unit_id;
+        }
+        if (status) {
+            conditions.push('p.status = :status');
+            replacements.status = status;
         }
         if (paket_id) {
             conditions.push('p.paket_id = :paket_id');
@@ -109,7 +112,59 @@ class Controller{
             res.status(500).json({ status: 500, message: "gagal", data: error });
         }
     }
+    static async list_billing(req,res){
+        const{pendapatan_id,unit_id,paket_id,status,user_id,date,bulan,tahun}=req.body
+        let conditions = [];
+        let replacements = {};
+        if (pendapatan_id) {
+            conditions.push('p.pendapatan_id = :pendapatan_id');
+            replacements.pendapatan_id = pendapatan_id;
+        }
+        if (unit_id) {
+            conditions.push('p.unit_id = :unit_id');
+            replacements.unit_id = unit_id;
+        }
+        if (status) {
+            conditions.push('p.status = :status');
+            replacements.status = status;
+        }
+        if (paket_id) {
+            conditions.push('p.paket_id = :paket_id');
+            replacements.paket_id = paket_id;
+        }
+        if (user_id) {
+            conditions.push('p.user_id = :user_id');
+            replacements.user_id = user_id;
+        }
+        if (date) {
+            conditions.push('p.mulai = :date');
+            replacements.date = date;
+        }
+        if (bulan) {
+            conditions.push(' EXTRACT(MONTH FROM p.mulai) = :bulan');
+            replacements.bulan = bulan;
+        }
+        if (tahun) {
+            conditions.push(' EXTRACT(YEAR FROM p.mulai)  = :tahun');
+            replacements.tahun = tahun;
+        } 
+        const whereClause = conditions.length > 0 ? `AND ${conditions.join(' AND ')}` : '';
 
+        try {
+            let data = await sq.query(`select u.unit_id ,p.pendapatan_id , u.nama_unit , u.ps_id ,p2.nama_ps , p3.nama_paket , p.harga_paket , p.mulai , p.selesai , p.status 
+            from unit u 
+            left join pendapatan p on u.unit_id = p.unit_id and p.status = 1 
+            left join ps p2 on p2.ps_id=u.ps_id and p2."deletedAt" is null 
+            left join paket p3 on p3.paket_id = p.paket_id 
+            where u."deletedAt" isnull ${whereClause} order by u."createdAt" desc   `,{replacements: { ...replacements  },s})
+            let jml = await sq.query(` select count(*) from pendapatan p where p."deletedAt" isnull ${whereClause} `,{replacements: { ...replacements },s})
+            res.status(200).json({status:200,message:"sukses",data,count:jml[0].count});  
+
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({ status: 500, message: "gagal", data: error });
+        }
+    }
     static async delete(req,res){
         const{pendapatan_id}=req.body
         try {

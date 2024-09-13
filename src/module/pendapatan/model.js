@@ -12,13 +12,23 @@ const pendapatan = sq.define('pendapatan',{
     paket_id:{
         type:DataTypes.STRING        
     },
+    mulai:{
+        type:DataTypes.DATE        
+    },
+    selesai:{
+        type:DataTypes.DATE        
+    },
     user_id:{
         type:DataTypes.STRING
     },
     unit_id:{
         type:DataTypes.STRING
     },
-    pendapatan:{
+    harga_paket:{
+        type:DataTypes.INTEGER,
+        defaultValue:0
+    },
+    status:{
         type:DataTypes.INTEGER,
         defaultValue:0
     },
