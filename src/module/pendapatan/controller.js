@@ -14,9 +14,9 @@ moment.locale('id');
 class Controller{
     static async register(req,res){
         console.log(req.body,"ini body");
-        const{unit_id,paket_id,status,mulai,user_id,harga_paket}=req.body
+        const{unit_id,paket_id,status,mulai,selesai,user_id,harga_paket}=req.body
         try {
-            let data = await pendapatan.create({pendapatan_id:uuid_v4(),status,mulai,unit_id,paket_id,user_id,harga_paket})
+            let data = await pendapatan.create({pendapatan_id:uuid_v4(),status,mulai,selesai,unit_id,paket_id,user_id,harga_paket})
             res.status(200).json({status:200,message:"sukses",data});
 
         } catch (error) {
@@ -39,10 +39,21 @@ class Controller{
     }
 
     static  async update(req,res){
-        const{pendapatan_id,unit_id,paket_id,status,user_id,pendapatan}=req.body
+        const{pendapatan_id,unit_id,paket_id,status,mulai,selesai,user_id,harga_paket}=req.body
+        let conditions = []
+        let replacements ={}
         try {
-        
-               let asd =  await pendapatan.update({unit_id,paket_id,status,user_id,pendapatan},{where:{
+            if (unit_id) {
+                conditions.push('s.unit_id = :unit_id');
+                replacements.unit_id = unit_id;
+            }
+            const whereClause = conditions.length > 0 ? `AND ${conditions.join(' AND ')}` : '';
+            let cek_uniq= await sq.query(` select * from pendapatan s where s."deletedAt" isnull and status = 1 ${whereClause}`,{replacements: { ...replacements }})
+            if(cek_uniq[0].length){
+                res.status(200).json({status:201,message:"Masih Digunakan"});
+            }
+            else{
+               let asd =  await pendapatan.update({unit_id,paket_id,status,mulai,selesai,user_id,harga_paket},{where:{
                     pendapatan_id
                 }})
                 if(asd>0){
@@ -51,7 +62,7 @@ class Controller{
                 else{
                     res.status(200).json({status:204,message:"id tidak ada"});
                 }       
-        
+            }
         } catch (error) {
             console.log(error);
             res.status(500).json({ status: 500, message: "gagal", data: error });
@@ -153,9 +164,9 @@ class Controller{
         try {
             let data = await sq.query(`select u.unit_id ,p.pendapatan_id , u.nama_unit , u.ps_id ,p2.nama_ps , p3.nama_paket , p.harga_paket , p.mulai , p.selesai , p.status 
             from unit u 
-            left join pendapatan p on u.unit_id = p.unit_id and p.status = 1 
+            left join pendapatan p on u.unit_id = p.unit_id and (p.status = 1 or  p.status = 2 ) and  p."deletedAt" isnull
             left join ps p2 on p2.ps_id=u.ps_id and p2."deletedAt" is null 
-            left join paket p3 on p3.paket_id = p.paket_id 
+            left join paket p3 on p3.paket_id = p.paket_id and  p3."deletedAt" isnull
             where u."deletedAt" isnull ${whereClause} order by u."createdAt" desc   `,{replacements: { ...replacements  },s})
             let jml = await sq.query(` select count(*) from pendapatan p where p."deletedAt" isnull ${whereClause} `,{replacements: { ...replacements },s})
             res.status(200).json({status:200,message:"sukses",data,count:jml[0].count});  

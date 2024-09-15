@@ -34,7 +34,7 @@ class Controller{
         let conditions = [];
         let replacements = {};
         if (paket_id) {
-            conditions.push('p.paket_id != :paket_id');
+            conditions.push('s.paket_id != :paket_id');
             replacements.paket_id = paket_id;
         }
         if (nama_paket) {
@@ -44,8 +44,10 @@ class Controller{
         const whereClause = conditions.length > 0 ? `AND ${conditions.join(' AND ')}` : '';
 
         try {
-            let cek_uniq= await sq.query(` select * from paket s where s."deletedAt" isnull  ${whereClause}`,{replacements: { ...replacements },s})
-            if(cek_uniq.length){
+            let cek_uniq= await sq.query(` select * from paket s where s."deletedAt" isnull  ${whereClause}`,{replacements: { ...replacements }})
+           console.log(cek_uniq);
+           
+            if(cek_uniq[0].length){
                 res.status(200).json({status:201,message:"data sudah ada"});
             }
             else{
