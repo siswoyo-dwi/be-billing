@@ -53,6 +53,9 @@ class Controller{
                 res.status(200).json({status:201,message:"Masih Digunakan"});
             }
             else{
+                await pendapatan.update({status:3},{where:{
+                    unit_id,status:2
+                }})
                let asd =  await pendapatan.update({unit_id,paket_id,status,mulai,selesai,user_id,harga_paket},{where:{
                     pendapatan_id
                 }})
@@ -70,6 +73,29 @@ class Controller{
      
     }
     
+    static  async update_status(req,res){
+        const{pendapatan_id,status,selesai,harga_paket}=req.body
+        try {
+               let asd =  await pendapatan.update({status,selesai,harga_paket},{where:{
+                    pendapatan_id
+                }})
+                if(asd>0){
+                    res.status(200).json({status:200,message:"sukses"});
+                }
+                else{
+                    res.status(200).json({status:204,message:"id tidak ada"});
+                }       
+            
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({ status: 500, message: "gagal", data: error });
+        }
+     
+    }
+    static playSound() {
+        const audio = new Audio(require('@/assets/notif.mp3'));
+        audio.play();
+      }
     static async list(req,res){
         const{pendapatan_id,unit_id,paket_id,status,user_id,date,bulan,tahun,jumlah,halaman}=req.body
         let offset = (+halaman -1) * jumlah;
