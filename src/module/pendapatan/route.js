@@ -11,6 +11,7 @@ router.post('/list', Controller.list);
 router.post('/delete', Controller.delete);
 router.get('/details_by_id/:pendapatan_id', Controller.details_by_pendapatan_id);
 router.post('/update_status', Controller.update_status);
+router.post('/sum_pendapatan_harian', Controller.sum_pendapatan_harian);
 
 
 module.exports = router

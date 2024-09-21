@@ -174,8 +174,7 @@ class Controller{
             replacements.user_id = user_id;
         }
         if (date) {
-            conditions.push('p.mulai = :date');
-            replacements.date = date;
+            conditions.push(` p.mulai BETWEEN '${date} 00:00:00' AND '${date} 23:59:59'  `);
         }
         if (bulan) {
             conditions.push(' EXTRACT(MONTH FROM p.mulai) = :bulan');
@@ -214,9 +213,9 @@ class Controller{
     }
 
     static async sum_pendapatan_harian(req,res){
-        const{bulan,tahun}=req.body
+        const{date}=req.body
         try {
-            let data = await sq.query(`select date(p."createdAt") ,count(*) from pendapatan p where p."deletedAt" isnull  and extract('month' from p."createdAt")=${bulan} and extract('years' from p."createdAt")=${tahun}  group by date(p."createdAt") `,s)
+            let data = await sq.query(`select sum(harga_paket) as total from pendapatan p where p."createdAt" BETWEEN '${date} 00:00:00' AND '${date} 23:59:59'`,s)
 
             res.status(200).json({status:200,message:"sukses",data});
         } catch (error) {

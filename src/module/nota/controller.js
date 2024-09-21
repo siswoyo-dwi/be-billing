@@ -109,7 +109,19 @@ class Controller{
             res.status(500).json({ status: 500, message: "gagal", data: error });
         }
     }
+    static async sum_pendapatan_harian(req,res){
+        const{date}=req.body
+        try {
+            let data = await sq.query(`select sum(total) as total_keseluruhan from nota n left join 
+(select j.harga_jual*pj.jumlah_jajan as total , pj.nota_id from penjualan_jajan pj   left join jajan j on j.jajan_id = pj.jajan_id where pj."deletedAt" is null)
+as a on n.nota_id =a.nota_id where n."createdAt" BETWEEN '${date} 00:00:00' AND '${date} 23:59:59'`,s)
 
+            res.status(200).json({status:200,message:"sukses",data});
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({ status: 500, message: "gagal", data: error });
+        }
+    }
 }
 
 module.exports=Controller
