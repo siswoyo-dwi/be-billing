@@ -110,7 +110,7 @@ class Controller{
         audio.play();
       }
     static async list(req,res){
-        const{penjualan_jajan_id,jajan_id,nota_id,jumlah_jajan,status,user_id,jumlah,halaman}=req.body
+        const{penjualan_jajan_id,jajan_id,nota_id,date,jumlah_jajan,status,user_id,jumlah,halaman}=req.body
         let offset = (+halaman -1) * jumlah;
         let conditions = [];
         let replacements = {};
@@ -138,22 +138,19 @@ class Controller{
             conditions.push('p.createdAt = :date');
             replacements.date = date;
         }
-        if (bulan) {
-            conditions.push(' EXTRACT(MONTH FROM p.createdAt) = :bulan');
-            replacements.bulan = bulan;
-        }
-        if (tahun) {
-            conditions.push(' EXTRACT(YEAR FROM p.createdAt)  = :tahun');
-            replacements.tahun = tahun;
-        } 
+        // if (bulan) {
+        //     conditions.push(' EXTRACT(MONTH FROM p.createdAt) = :bulan');
+        //     replacements.bulan = bulan;
+        // }
+        // if (tahun) {
+        //     conditions.push(' EXTRACT(YEAR FROM p.createdAt)  = :tahun');
+        //     replacements.tahun = tahun;
+        // } 
         const whereClause = conditions.length > 0 ? `AND ${conditions.join(' AND ')}` : '';
 
         try {
-            let data = await sq.query(`select p.id as penjualan_jajan_id,p."createdAt" as tanggal_penjualan_jajan,*  from penjualan_jajan p 
-            left join ps p2 on p2.ps_id = p.ps_id 
-            left join paket p3 on p3.paket_id = p.paket_id 
-            left join user u on u.user_id = p.user_id 
-            where p."deletedAt" isnull ${whereClause} order by p."createdAt" desc LIMIT  `,{replacements: { ...replacements  },s})
+            let data = await sq.query(`select * from nota p left join penjualan_jajan pj on pj.nota_id = p.nota_id   left join jajan j on j.jajan_id = pj.jajan_id 
+            where p."deletedAt" isnull ${whereClause} order by p."createdAt" desc `,{replacements: { ...replacements  },s})
             let jml = await sq.query(` select count(*) from penjualan_jajan p where p."deletedAt" isnull ${whereClause} `,{replacements: { ...replacements },s})
             res.status(200).json({status:200,message:"sukses",data,count:jml[0].count,jumlah,halaman});  
 
