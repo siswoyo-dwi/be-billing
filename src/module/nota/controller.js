@@ -110,7 +110,14 @@ class Controller{
         }
     }
     static async sum_pendapatan_harian(req,res){
-        const{date}=req.body
+        const{date , bulan , tahun}=req.body
+        let conditions = [];
+        let replacements = {};
+        
+        if (nota_id) {
+            conditions.push('p.nota_id = :nota_id');
+            replacements.nota_id = nota_id;
+        }
         try {
             let data = await sq.query(`select sum(total) as total_keseluruhan from nota n left join 
 (select j.harga_jual*pj.jumlah_jajan as total , pj.nota_id from penjualan_jajan pj   left join jajan j on j.jajan_id = pj.jajan_id where pj."deletedAt" is null)
