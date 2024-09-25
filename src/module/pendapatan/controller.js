@@ -223,6 +223,24 @@ class Controller{
             res.status(500).json({ status: 500, message: "gagal", data: error });
         }
     }
+    static async sum_pendapatan_bulanan(req,res){
+        const{tahun}=req.body
+        let conditions = [];
+        let replacements = {};
+        if (tahun) {
+            conditions.push(' EXTRACT(YEAR FROM p.createdAt)  = :tahun');
+            replacements.tahun = tahun;
+        } 
+        const whereClause = conditions.length > 0 ? `AND ${conditions.join(' AND ')}` : '';
+
+        try {
+            let data = await sq.query(`SELECT SUM(harga_paket) AS total_harga_paket, EXTRACT(MONTH FROM p."createdAt") AS bulan FROM pendapatan p  where p."deletedAt" isnull   ${whereClause}  GROUP BY bulan ORDER BY bulan;`,{replacements: { ...replacements },s})
+            res.status(200).json({status:200,message:"sukses",data});
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({ status: 500, message: "gagal", data: error });
+        }
+    }
 }
 
 module.exports=Controller
